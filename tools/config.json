@@ -1,0 +1,13 @@
+{
+  "trainNoStart": 8001,
+  "trainNoStep": 2,
+  "operator": "枫丹高铁集团",
+  "name": "",
+  "count": 13,
+  "departIntervalMin": 60,
+  "stops": [
+    { "station": "璃月港", "depart": "07:00", "price": 0 },
+    { "station": "遗珑埠", "arrive": "07:45", "depart": "07:50", "price": 500 },
+    { "station": "枫丹中央", "arrive": "08:30", "price": 1000 }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "teyvat-transit",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "setup": "cd server && npm install && cd ../client && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "go": "npm run build && npm run start"
+  }
+}

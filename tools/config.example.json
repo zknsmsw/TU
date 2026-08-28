@@ -1,0 +1,13 @@
+{
+  "trainNoStart": 8001,
+  "trainNoStep": 2,
+  "operator": "璃月港高速电车",
+  "name": "",
+  "count": 3,
+  "departIntervalMin": 60,
+  "stops": [
+    { "station": "璃月港", "depart": "08:00", "price": 0 },
+    { "station": "璃中", "arrive": "08:15", "depart": "08:17", "price": 60 },
+    { "station": "蒙德东", "arrive": "09:15", "price": 280 }
+  ]
+}

@@ -1,0 +1,937 @@
+/* 朴素、平实的传统网页风格：白底、细边框、系统字体，不做渐变和玻璃效果 */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #f4f4f4;
+  color: #222;
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- 导航栏 ---------- */
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 52px;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.brand-logo {
+  height: 40px;
+  display: block;
+}
+
+.nav-links {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav-link {
+  padding: 6px 12px;
+  color: #333;
+  font-size: 14px;
+}
+
+.nav-link:hover {
+  background: #eee;
+}
+
+.nav-link.active {
+  color: #c00;
+  font-weight: 700;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.user-menu-wrap {
+  position: relative;
+}
+
+.user-name-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  font-size: 14px;
+  padding: 6px 8px;
+  font-family: inherit;
+}
+
+.user-name-btn:hover {
+  background: #eee;
+}
+
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+
+.user-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 21;
+  min-width: 120px;
+  background: #fff;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+}
+
+.user-menu a,
+.menu-logout {
+  padding: 8px 14px;
+  font-size: 14px;
+  color: #333;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.user-menu a:hover,
+.menu-logout:hover {
+  background: #f0f0f0;
+}
+
+.menu-logout {
+  color: #a33;
+}
+
+/* ---------- 后台：左侧分栏布局 ---------- */
+.admin-layout {
+  display: flex;
+  max-width: 1100px;
+  margin: 0 auto;
+  min-height: calc(100vh - 52px - 60px);
+}
+
+.admin-side {
+  width: 180px;
+  flex-shrink: 0;
+  border-right: 1px solid #ddd;
+  padding: 16px 0;
+}
+
+.admin-side-title {
+  padding: 0 16px 8px;
+  font-weight: 700;
+  color: #555;
+  font-size: 13px;
+}
+
+.admin-side-link {
+  display: block;
+  padding: 9px 16px;
+  color: #333;
+  font-size: 14px;
+}
+
+.admin-side-link:hover {
+  background: #eee;
+}
+
+.admin-side-link.active {
+  background: #eee;
+  color: #c00;
+  font-weight: 700;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 24px 20px;
+}
+
+.admin-content h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+
+.settings-tip {
+  margin: 0 0 12px;
+  color: #777;
+  font-size: 13px;
+}
+
+.settings-preview {
+  margin-top: 16px;
+  color: #555;
+  font-size: 14px;
+}
+
+.settings-preview img {
+  max-height: 80px;
+  display: block;
+  margin: 8px 0;
+  border: 1px solid #eee;
+}
+
+.muted {
+  color: #999;
+}
+
+.form-info {
+  margin-top: 12px;
+  padding: 8px 10px;
+  border: 1px solid #cfc;
+  background: #f2fdf2;
+  color: #373;
+  font-size: 13px;
+}
+
+/* ---------- 通用输入框 ---------- */
+.input {
+  padding: 6px 9px;
+  border: 1px solid #bbb;
+  background: #fff;
+  color: #222;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #666;
+}
+
+/* ---------- 后台面板 / 线路管理 ---------- */
+.admin-panel {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.admin-panel h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.line-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+}
+
+.line-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.line-card-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.color-swatch {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+
+.line-detail {
+  padding: 14px;
+}
+
+.line-detail h4 {
+  margin: 16px 0 8px;
+  font-size: 14px;
+}
+
+.stop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f4f4f4;
+}
+
+.stop-seq {
+  width: 24px;
+  color: #999;
+}
+
+.stop-name {
+  flex: 1;
+}
+
+.km-input {
+  width: 100px;
+}
+
+.edge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f4f4f4;
+}
+
+.edge-route {
+  flex: 1;
+}
+
+.fare-input {
+  width: 100px;
+}
+
+.time-input {
+  width: 72px;
+}
+
+/* ---------- 前台：订高铁票 ---------- */
+.hs-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+}
+
+.hs-no {
+  font-weight: 700;
+  min-width: 70px;
+}
+
+.hs-name {
+  color: #555;
+}
+
+.hs-operator {
+  color: #888;
+  font-size: 13px;
+}
+
+.hs-time {
+  flex: 1;
+  color: #333;
+}
+
+.hs-fare {
+  color: #a33;
+  font-weight: 700;
+}
+
+/* ---------- 后台表格（站点管理） ---------- */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.admin-table th,
+.admin-table td {
+  border-bottom: 1px solid #eee;
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.admin-table th {
+  background: #f7f7f7;
+  font-weight: 600;
+}
+
+.admin-table .btn {
+  margin-right: 6px;
+}
+
+/* ---------- 前台：订火车票 ---------- */
+.train-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.train-page h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.train-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.train-form select {
+  flex: 1;
+  padding: 7px 9px;
+  border: 1px solid #bbb;
+  background: #fff;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.station-select {
+  position: relative;
+  flex: 1;
+}
+
+.station-select .input {
+  width: 100%;
+}
+
+.station-drop {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.station-option {
+  padding: 8px 10px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.station-option:hover,
+.station-option.selected {
+  background: #f0f0f0;
+}
+
+.station-drop-empty {
+  padding: 10px;
+  color: #888;
+  font-size: 13px;
+}
+
+.btn-swap {
+  flex: 0 0 auto;
+}
+
+.train-result {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 16px;
+}
+
+.train-summary {
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.train-fare {
+  margin-left: 12px;
+  color: #a33;
+  font-weight: 700;
+}
+
+.train-segments {
+  margin-bottom: 12px;
+}
+
+.train-segment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f4f4f4;
+}
+
+.train-seg-line {
+  font-weight: 600;
+}
+
+.train-seg-op {
+  color: #888;
+  font-size: 13px;
+}
+
+.train-seg-route {
+  flex: 1;
+  color: #333;
+}
+
+.train-seg-fare {
+  color: #555;
+}
+
+.train-transfer {
+  color: #888;
+  font-size: 13px;
+  padding: 4px 0 4px 20px;
+}
+
+.train-book {
+  margin-top: 12px;
+}
+
+.book-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.book-form .input {
+  flex: 1;
+}
+
+/* ---------- 我的订单 ---------- */
+.orders-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.orders-page h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.order-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  margin-bottom: 14px;
+  padding: 14px 16px;
+}
+
+.order-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.order-no {
+  font-weight: 700;
+}
+
+.order-type {
+  color: #777;
+  font-size: 13px;
+}
+
+.order-status {
+  font-size: 13px;
+  padding: 2px 8px;
+  border: 1px solid #ccc;
+}
+
+.order-status.s-pending {
+  color: #a06a00;
+  border-color: #e0b363;
+  background: #fdf6e6;
+}
+
+.order-status.s-paid {
+  color: #1a7a3a;
+  border-color: #9ad0ab;
+  background: #f0faf3;
+}
+
+.order-status.s-cancelled {
+  color: #888;
+  border-color: #ccc;
+  background: #f5f5f5;
+}
+
+.order-status.s-refunded {
+  color: #7a5ac0;
+  border-color: #c3b1e8;
+  background: #f7f3fd;
+}
+
+.tag-loop {
+  font-size: 12px;
+  color: #7a5ac0;
+  border: 1px solid #c3b1e8;
+  background: #f7f3fd;
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  color: #555;
+  font-size: 14px;
+}
+
+.order-total {
+  margin-left: auto;
+  color: #a33;
+  font-weight: 700;
+}
+
+.order-items {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 8px;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+}
+
+.order-item-line {
+  font-weight: 600;
+}
+
+.order-item-route {
+  flex: 1;
+  color: #333;
+}
+
+.order-item-fare {
+  color: #555;
+}
+
+.order-foot {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  gap: 10px;
+}
+
+.order-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+/* ---------- 按钮 ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: #333;
+  border: 1px solid #999;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #333;
+  border-color: #333;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #555;
+  border-color: #555;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: #ccc;
+  color: #666;
+  padding: 4px 10px;
+}
+
+.btn-lg {
+  padding: 8px 20px;
+  font-size: 15px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* ---------- 主体 ---------- */
+.main {
+  flex: 1;
+}
+
+/* ---------- 首页宣传图 ---------- */
+.home {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.banner {
+  position: relative;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+.banner-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.banner-empty {
+  min-height: 160px;
+  border: 1px dashed #ccc;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+}
+
+.banner-dots {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.dot.active {
+  background: #111;
+}
+
+/* ---------- 登录 / 注册 ---------- */
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 340px;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 28px 24px;
+}
+
+.auth-card h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+.auth-sub {
+  margin: 0 0 18px;
+  color: #777;
+  font-size: 13px;
+}
+
+.auth-card label {
+  display: block;
+  margin: 12px 0 4px;
+  font-size: 13px;
+  color: #555;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid #bbb;
+  background: #fff;
+  color: #222;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: #666;
+}
+
+.auth-card .btn {
+  margin-top: 16px;
+}
+
+.form-error {
+  margin-top: 12px;
+  padding: 8px 10px;
+  border: 1px solid #e0b3b3;
+  background: #fdf2f2;
+  color: #a33;
+  font-size: 13px;
+}
+
+.auth-switch {
+  margin-top: 14px;
+  text-align: center;
+  color: #777;
+  font-size: 13px;
+}
+
+.auth-switch a {
+  color: #06c;
+}
+
+/* ---------- 占位页 / 404 ---------- */
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.placeholder-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.placeholder h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.placeholder p {
+  margin: 0 0 18px;
+  color: #777;
+}
+
+/* ---------- 后台管理 ---------- */
+.plain-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.plain-page h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+  color: #777;
+  font-size: 13px;
+}
+
+.admin-list {
+  margin-top: 16px;
+}
+
+.admin-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.admin-item img {
+  height: 64px;
+  border: 1px solid #eee;
+}
+
+.admin-item span {
+  flex: 1;
+  color: #666;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+/* ---------- 页脚 ---------- */
+.footer {
+  padding: 14px 24px;
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+  border-top: 1px solid #ddd;
+  background: #f0f0f0;
+}
+
+.footer p {
+  margin: 0;
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 720px) {
+  .navbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 16px;
+    gap: 10px;
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+}
