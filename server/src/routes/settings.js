@@ -1,12 +1,21 @@
-// 站点设置接口：导航栏标题图（Logo）的上传 / 移除
+// 站点设置接口：导航栏标题图（Logo）的上传 / 移除、页脚附加声明的增删
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const db = require('../db');
 const { requireAdmin } = require('../middleware');
 const { isRealImage } = require('../imageCheck');
+const { validateText, createNotice, removeById } = require('../footerNotices');
 
 const router = express.Router();
+
+// 获取页脚声明列表存储（不存在则初始化为空数组）
+function footerList() {
+  const d = db.load();
+  d.settings = d.settings || {};
+  if (!Array.isArray(d.settings.footerNotices)) d.settings.footerNotices = [];
+  return d.settings.footerNotices;
+}
 
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
@@ -19,6 +28,34 @@ function mimeToExt(mime) {
   const map = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/gif': '.gif', 'image/webp': '.webp' };
   return map[mime] || '.png';
 }
+
+// 读取页脚附加声明（公开，供全站页脚显示）
+router.get('/footer', (req, res) => {
+  const list = footerList();
+  res.json({ code: 0, message: 'ok', data: list });
+});
+
+// 添加一条页脚附加声明（管理员）
+router.post('/footer', requireAdmin, (req, res) => {
+  const { text } = req.body || {};
+  const created = createNotice(text);
+  if (created.error) {
+    return res.status(400).json({ code: 400, message: created.error });
+  }
+  footerList().push(created.notice);
+  db.save();
+  res.json({ code: 0, message: '声明已添加', data: created.notice });
+});
+
+// 删除一条页脚附加声明（管理员）
+router.delete('/footer/:id', requireAdmin, (req, res) => {
+  const removed = removeById(footerList(), req.params.id);
+  if (!removed) {
+    return res.status(404).json({ code: 404, message: '声明不存在' });
+  }
+  db.save();
+  res.json({ code: 0, message: '声明已删除', data: { id: removed.id } });
+});
 
 function currentUrl() {
   const logo = (db.load().site && db.load().site.logo) || null;

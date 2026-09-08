@@ -919,6 +919,10 @@ a {
   margin: 0;
 }
 
+.footer p + .footer-notice {
+  margin-top: 6px;
+}
+
 /* ---------- 响应式 ---------- */
 @media (max-width: 720px) {
   .navbar {
