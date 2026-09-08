@@ -15,6 +15,7 @@ import AdminAirports from './pages/AdminAirports.jsx';
 import AdminFlights from './pages/AdminFlights.jsx';
 import AdminBanners from './pages/AdminBanners.jsx';
 import AdminSettings from './pages/AdminSettings.jsx';
+import AdminFooter from './pages/AdminFooter.jsx';
 import ChangePassword from './pages/ChangePassword.jsx';
 import NotFound from './pages/NotFound.jsx';
 
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="flights" element={<AdminFlights />} />
           <Route path="banners" element={<AdminBanners />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="footer" element={<AdminFooter />} />
         </Route>
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="*" element={<NotFound />} />

@@ -9,7 +9,8 @@ const items = [
   { to: '/admin/airports', label: '机场管理' },
   { to: '/admin/flights', label: '航班管理' },
   { to: '/admin/banners', label: '宣传图管理' },
-  { to: '/admin/settings', label: '票务设置' }
+  { to: '/admin/settings', label: '票务设置' },
+  { to: '/admin/footer', label: '页脚声明' }
 ];
 
 export default function AdminLayout() {

@@ -16,12 +16,18 @@ export default function Layout() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState(null);
+  const [footerNotices, setFooterNotices] = useState([]);
 
   useEffect(() => {
     api
       .get('/settings/logo')
       .then((res) => setLogoUrl(res.data && res.data.url ? res.data.url : null))
       .catch(() => setLogoUrl(null));
+    // 页脚附加声明（管理员在后台维护）
+    api
+      .get('/settings/footer')
+      .then((res) => setFooterNotices(res.data || []))
+      .catch(() => setFooterNotices([]));
   }, []);
 
   const handleLogout = () => {
@@ -105,6 +111,11 @@ export default function Layout() {
 
       <footer className="footer">
         <p>提瓦特交通联合 · 纯虚构爱好者项目，与米哈游及任何现实运输系统无关</p>
+        {footerNotices.map((n) => (
+          <p key={n.id} className="footer-notice">
+            {n.text}
+          </p>
+        ))}
       </footer>
     </div>
   );
