@@ -9,19 +9,24 @@
 - 数据库 `server/data/`（`db.json`、`.jwt-secret`）与上传图片留在服务器本地，`git pull` 不会覆盖，
   但也**不会被同步**——只能靠备份（第七节）。
 
-## 一、服务器安装 Node.js（LTS 22 或 24）
+## 一、Node.js 版本
 
-Ubuntu/Debian：
+要求 **≥ 22.12**：`client` 的 vite 8 / @vitejs/plugin-react 6 声明的 engines 是 `^20.19.0 || >=22.12.0`。
+**26.x 可用**（服务器现在是 Node 26.8，不用降级也不用动）；`server` 侧依赖更宽松
+（express `>=0.10`、cors `>=0.10`、jsonwebtoken `>=12`，都没有上限）。
+
+`node -v` 已经满足就跳过本节，全新机器才需要装：
 
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs
-node -v   # 应显示 v22.x
+node -v
 ```
 
 其他系统（CentOS/Rocky 用 dnf、或用 nvm）请参照 nodejs.org 官方文档。
 
-> 打算用下面的 HTTPS 一键脚本（`deploy/setup-https.sh`）的话，这一节可以跳过 —— 它自己会装 Node 22 LTS。
+> `deploy/setup-https.sh` 只在 `node -v` 主版本 **< 22** 时才去装 Node 22 —— 已有 26.8 时它什么都不做，
+> **不会降级**。
 
 ## 二、clone 到 /opt/TU
 
