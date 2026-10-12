@@ -24,12 +24,17 @@
 
 ## 二、一键部署
 
+> 前置：`/opt/TU` 已是 git 工作副本，且 `client/dist` 已构建（`DEPLOY.md` 第二、三节）。
+> `setup-https.sh` 只管 HTTPS / Nginx / pm2 —— 它既不 clone 代码，也不构建前端。
+
 ```bash
 cd /opt/TU/deploy
 sudo bash setup-https.sh 你的域名 你的邮箱 阿里云AccessKeyID 阿里云AccessKeySecret
 ```
 
-脚本会装 Node.js 22 LTS → nginx → 后端依赖 → acme.sh → 签发证书（约 1~2 分钟）→ 写 nginx 配置 → pm2 启动 + 开机自启。完成后访问 `https://你的域名:3000`。
+脚本会按需装 Node.js（仅在主版本 < 22 时；已有更高版本不动）→ nginx → 后端依赖 → acme.sh → 签发证书（约 1~2 分钟）→ 写 nginx 配置 → pm2 启动 + 开机自启。完成后访问 `https://你的域名:3000`。
+
+> 日常更新代码不用重跑本脚本：`sudo bash /opt/TU/deploy/update.sh`。
 
 ## 三、手动部署（等价步骤，方便排查）
 
@@ -59,7 +64,7 @@ sudo fuser -k 3000/tcp 3001/tcp 3002/tcp 2>/dev/null || true
 sudo nginx -t && sudo systemctl restart nginx
 
 # 5. 启动后端（内部端口 3002，COOKIE_SECURE=1；后端已绑定 127.0.0.1，只给本机 nginx 访问）
-cd /opt/TU && pm2 start deploy/ecosystem.config.js && pm2 save
+cd /opt/TU && sudo pm2 start deploy/ecosystem.config.js && sudo pm2 save
 ```
 
 ## 四、Nginx 配置要点（deploy/nginx-teyvat-transit.conf）
@@ -96,7 +101,24 @@ crontab -l                 # 应有一行 acme.sh 每日任务
 - **TXT 验证失败**：AccessKey 没授权 `AliyunDNSFullAccess`；或域名不在阿里云云解析；或阿里云生效慢，稍后重跑 `--issue`。
 - **续期后证书没更新**：确认 crontab 在、`--reloadcmd` 配置成功（`~/.acme.sh/域名/域名.conf` 里有 RELOADCMD）。
 - **登录态异常**：`COOKIE_SECURE=1` 与协议不匹配。保持该变量且全程走 `https://域名:3000`。
-- **限速把所有人当同一个 IP**：已解决 —— `server/src/index.js` 内置 `app.set('trust proxy', 1);`（反向代理场景限速按真实客户端 IP 生效）。
+- **`pm2 status` 看不到应用**：pm2 守护进程按用户隔离。`setup-https.sh` 是以 root 起的（`/root/.pm2`），所以要用 `sudo pm2 status`；用普通用户再跑一次会开出第二个守护进程，两边列表互相看不到。
+- **限速把所有人当成同一个 IP（直连场景）**：`server/src/index.js` 内置 `app.set('trust proxy', 1);`，nginx 直连时按真实客户端 IP 生效。
+- **限速把所有人当成同一个 IP（前面挂了 CDN / ESA / WAF）**：上面那条结论**不成立**。模板里的
+  `$proxy_add_x_forwarded_for` 会把边缘节点 IP 追加进 XFF，而 `trust proxy = 1` 只信最近一跳，于是
+  `req.ip` 变成边缘节点 IP —— 同一节点的访客共用限速额度（全局 300 次/分钟，会直接误伤正常用户；
+  登录锁定键是 `IP:用户名`，相对不敏感）。**解决**：把 nginx 配置里的 `$proxy_add_x_forwarded_for`
+  换成 `$http_x_forwarded_for`（原样透传上游给的真实客户端 IP）：
+  ```bash
+  sudo sed -i 's/\$proxy_add_x_forwarded_for/\$http_x_forwarded_for/' /etc/nginx/sites-available/teyvat-transit
+  sudo nginx -t && sudo systemctl reload nginx
+  ```
+  阿里云还会带 `Ali-CDN-Real-IP`（或 `X-Real-IP`），想更严谨可以用 `real_ip_header Ali-CDN-Real-IP;` + `set_real_ip_from` 指定回源段。注意：`/etc/nginx/` 下的文件不在版本库里，`git pull` 不会碰它，改了也不会被覆盖。
+- **前面挂了 CDN / ESA（例如访客域名 `web.example.com`、回源 `cuhome.example.com`）**：访客看到的是 CDN 给
+  加速域名签的证书，家里这张证书管的是回源那一段，两套互不相干、都留着。CDN 源站填：回源域名、回源端口
+  （本项目 nginx 是 3000 HTTPS / 3001 HTTP）、协议按你选的（选 HTTP 回源就不用在家里做 TLS，但那时**别用
+  仓库里的 nginx 模板**，因为 3001 那个块是 301 跳转，会把 CDN 的回源请求跳走）；**回源 Host 要和 nginx
+  `server_name` 对得上**（填回源域名，或把两个域名一起写进 `server_name`）。源站域名**必须解析到真实家宽
+  IP，不要再被 CDN 代理一次**，否则回源会打回 CDN 成环。
 - **以后想改回 80/443**：改 nginx 监听端口和跳转地址、路由器改转发 80/443 即可，证书方案（DNS-01）不用动。
 
 ## 附录 A：CGNAT（大内网）怎么办

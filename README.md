@@ -124,6 +124,8 @@ TU/
 └── package.json      一键命令
 ```
 
+服务器部署（Linux + HTTPS + `git pull` 更新）见 `DEPLOY.md`；HTTPS 原理与排查见 `HTTPS.md`。
+
 ## 常见问题
 
 - **提示「网络错误」或页面能开但登录没反应**：后端没启动，先运行 `npm start`。

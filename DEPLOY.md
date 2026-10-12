@@ -46,7 +46,7 @@ sudo git clone https://github.com/zknsmsw/TU.git /opt/TU
 sudo cp -a /opt/TU.old/server/data    /opt/TU/server/data
 sudo cp -a /opt/TU.old/server/uploads /opt/TU/server/uploads 2>/dev/null || true
 sudo chown -R root:root /opt/TU
-pm2 list                             # 确认没有旧进程残留（用启动 pm2 的同一个用户执行）
+sudo pm2 list                        # 确认没有旧进程残留
 ```
 
 ## 三、装依赖 + 构建前端
@@ -64,40 +64,32 @@ ls -l /opt/TU/client/dist/index.html     # 必须存在
 
 ## 四、启动
 
+公网 HTTPS 走一键脚本：
+
 ```bash
 sudo bash /opt/TU/deploy/setup-https.sh 你的域名 你的邮箱 阿里云AK 阿里云SK
 ```
 
-上面这条是 HTTPS 一键部署（Node 22 LTS / nginx / acme.sh DNS-01 证书 / pm2 开机自启），
-细节见 `deploy/README.md` 与 `HTTPS.md`。只想先在局域网 / 本机验证，用下面的手动方式：
+它会装 nginx → 后端依赖 → acme.sh → 签发证书 → 写 nginx 配置（3000 HTTPS / 3001 跳转）→
+pm2 启动 + 开机自启，完成后访问 `https://你的域名:3000`。细节见 `deploy/README.md` 与 `HTTPS.md`。
 
-前台启动（测试用）：
+只想先在本机 / 局域网验证，不碰 nginx 和证书：
 
 ```bash
 cd /opt/TU
-npm start
-# 看到「提瓦特交通联合后端已启动：http://localhost:3001」即成功
+npm start                                     # 前台，端口 3001，看日志方便
+nohup npm start > /opt/TU/server.log 2>&1 &   # 想放后台就用这个（不走 HTTPS 时）
 ```
 
-后台常驻（二选一）：
-
-```bash
-# 方式 A：nohup（最简单）
-nohup npm start > /opt/TU/server.log 2>&1 &
-
-# 方式 B：pm2（推荐，崩溃自动重启、开机自启）
-sudo npm i -g pm2
-pm2 start /opt/TU/server/src/index.js --name teyvat-transit
-pm2 save
-pm2 startup    # 按提示执行它输出的命令即可开机自启
-```
-
-> HTTPS 一键脚本用的是 `deploy/ecosystem.config.js`（后端跑 3002，`COOKIE_SECURE=1`）。
-> 用明文 HTTP 访问时不要设 `COOKIE_SECURE`，否则浏览器会丢弃会话 Cookie，表现为「登录没反应」。
+> **两条路线二选一，别同时起**，端口分配不一样：`npm start` 用 3001；一键脚本的
+> `deploy/ecosystem.config.js` 用 3002（`COOKIE_SECURE=1`，只 bind `127.0.0.1`，交给本机 nginx 反代）。
+>
+> pm2 守护进程按用户隔离：root 是 `/root/.pm2`，普通用户是 `~/.pm2`，**两个列表互相看不到**，
+> 所以 pm2 命令统一加 `sudo`，否则会出现「应用明明在跑，`pm2 status` 却是空的」。
 
 ## 五、安全配置（公网部署强烈建议）
 
-1. **JWT 密钥**：首次启动会自动生成随机密钥到 `server/data/.jwt-secret`（已自动排除在版本库外，本包已包含）。如需自管：
+1. **JWT 密钥**：首次启动会自动生成随机密钥并保存到 `server/data/.jwt-secret`（该目录被 `.gitignore` 排除，不进版本库）。如需自管：
 
    ```bash
    # 生成一个 64 位随机密钥
@@ -114,27 +106,16 @@ pm2 startup    # 按提示执行它输出的命令即可开机自启
    chmod 600 /opt/TU/server/data/db.json
    ```
 
-3. **HTTPS（推荐用 Nginx 反向代理 + certbot 免费证书）**：
+3. **HTTPS**：由 `deploy/setup-https.sh` 负责（acme.sh + 阿里云 DNS-01，不占用 80/443）。
+   端口对应关系是 **nginx 在 3000 终止 TLS → 反代到 `127.0.0.1:3002`**；3001 只负责 301 跳到
+   `https://域名:3000`。模板见 `deploy/nginx-teyvat-transit.conf`，原理与排查见 `HTTPS.md`。
+   别照抄网上 `listen 443 ssl` + `proxy_pass http://127.0.0.1:3001` 的示例 —— 本方案里 3001 是跳转口，
+   那样写只会 502。
 
-   ```nginx
-   server {
-       listen 443 ssl;
-       server_name 你的域名;
-       ssl_certificate     /etc/letsencrypt/live/你的域名/fullchain.pem;
-       ssl_certificate_key /etc/letsencrypt/live/你的域名/privkey.pem;
-       location / {
-           proxy_pass http://127.0.0.1:3001;
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-           proxy_set_header X-Forwarded-Proto $scheme;
-       }
-   }
-   ```
+   HTTPS 部署必须给服务加 `COOKIE_SECURE=1`（会话 Cookie 追加 Secure 标志）；明文 HTTP 访问时**不能**设，
+   否则浏览器会丢弃 Cookie，表现为「登录没反应」。
 
-   HTTPS 部署时给服务加环境变量 `COOKIE_SECURE=1`（会话 Cookie 追加 Secure 标志）。
-
-4. **防火墙**：只放行 80/443（或你用的端口），3001 不要直接暴露公网。
+4. **防火墙**：只放行你实际用的端口（本方案是 3000/3001）；**3002 不要暴露公网**，后端只 bind `127.0.0.1`。
 
 ## 六、升级 / 更新（git pull）
 
@@ -160,7 +141,7 @@ cd /opt/TU && sudo git checkout main && sudo git pull --ff-only   # 回滚后是
 > 就是为了杜绝这种情况。
 >
 > 不想用脚本时的等价命令：
-> `cd /opt/TU && sudo git pull --ff-only && sudo bash -c 'cd client && npm ci && npm run build' && pm2 restart teyvat-transit`
+> `cd /opt/TU && sudo git pull --ff-only && sudo bash -c 'cd client && npm ci && npm run build' && sudo pm2 restart teyvat-transit`
 
 ## 七、数据备份
 
@@ -175,5 +156,5 @@ sudo crontab -e
 恢复：
 
 ```bash
-sudo tar -xzf /opt/tu-backups/data-<时间>.tar.gz -C /opt/TU && pm2 restart teyvat-transit
+sudo tar -xzf /opt/tu-backups/data-<时间>.tar.gz -C /opt/TU && sudo pm2 restart teyvat-transit
 ```

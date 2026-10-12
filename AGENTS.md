@@ -44,7 +44,7 @@
 
 - `server/`：后端（Express，数据存 `server/data/db.json`）
 - `client/`：前端（React + Vite，构建产物 `client/dist`）
-- `deploy/`：部署工具（HTTPS / Nginx / pm2）
+- `deploy/`：部署工具（HTTPS / Nginx / pm2 / `update.sh` 服务器更新）
 - `HTTPS.md` / `DEPLOY.md`：部署与 HTTPS 说明
 
 ## 完成自查清单（交付前逐项打勾）
