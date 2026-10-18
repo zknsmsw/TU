@@ -63,6 +63,9 @@ router.delete('/:id', requireAdmin, (req, res) => {
   if (d.trainLineStops.some((s) => s.stationId === id)) {
     return res.status(409).json({ code: 409, message: '该站已被线路使用，请先从线路中移除' });
   }
+  if ((d.hsStops || []).some((s) => s.stationId === id)) {
+    return res.status(409).json({ code: 409, message: '该站已被高铁车次使用，请先从车次中移除' });
+  }
   d.stations.splice(idx, 1);
   db.save();
   res.json({ code: 0, message: '站点已删除', data: { id } });

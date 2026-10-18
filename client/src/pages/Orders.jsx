@@ -95,7 +95,8 @@ export default function Orders() {
 
           <div className="order-foot">
             <span className="muted">
-              {new Date(o.createdAt).toLocaleString('zh-CN')} · 乘车人{' '}
+              {new Date(o.createdAt).toLocaleString('zh-CN')} ·{' '}
+              {o.type === 'flight' ? '乘机人' : '乘车人'}{' '}
               {o.items[0] ? o.items[0].passengerName : '-'}
             </span>
             {o.status === 'refunded' && o.refundAmount !== undefined && (

@@ -33,12 +33,30 @@ export default function StationSelect({ stations, value, onChange, placeholder }
       return;
     }
     setFiltered(stations.filter((s) => s.name.includes(kw)));
+    const exact = stations.find((s) => s.name === kw);
+    if (exact) {
+      onChange(exact.id);
+    } else {
+      onChange('');
+    }
   };
 
   const pick = (s) => {
     onChange(s.id);
     setText(s.name);
     setOpen(false);
+  };
+
+  const onBlur = () => {
+    const kw = text.trim();
+    const exact = stations.find((s) => s.name === kw);
+    if (exact) {
+      onChange(exact.id);
+      setText(exact.name);
+    } else if (!value) {
+      const s = stations.find((x) => x.id === value);
+      setText(s ? s.name : '');
+    }
   };
 
   const onKeyDown = (e) => {
@@ -56,6 +74,7 @@ export default function StationSelect({ stations, value, onChange, placeholder }
         className="input"
         value={text}
         onChange={onInput}
+        onBlur={onBlur}
         onFocus={() => {
           setOpen(true);
           setFiltered(stations.slice(0, 20));

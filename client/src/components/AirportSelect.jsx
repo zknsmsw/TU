@@ -42,12 +42,38 @@ export default function AirportSelect({ airports, value, onChange, placeholder }
       return;
     }
     setFiltered(airports.filter((a) => match(a, kw)));
+    const exact = airports.find(
+      (a) =>
+        a.name.toLowerCase() === kw.toLowerCase() ||
+        (a.code || '').toLowerCase() === kw.toLowerCase()
+    );
+    if (exact) {
+      onChange(exact.id);
+    } else {
+      onChange('');
+    }
   };
 
   const pick = (s) => {
     onChange(s.id);
     setText(`${s.name}（${s.code}）`);
     setOpen(false);
+  };
+
+  const onBlur = () => {
+    const kw = text.trim();
+    const exact = airports.find(
+      (a) =>
+        a.name.toLowerCase() === kw.toLowerCase() ||
+        (a.code || '').toLowerCase() === kw.toLowerCase()
+    );
+    if (exact) {
+      onChange(exact.id);
+      setText(`${exact.name}（${exact.code}）`);
+    } else if (!value) {
+      const s = airports.find((x) => x.id === value);
+      setText(s ? `${s.name}（${s.code}）` : '');
+    }
   };
 
   const onKeyDown = (e) => {
@@ -65,6 +91,7 @@ export default function AirportSelect({ airports, value, onChange, placeholder }
         className="input"
         value={text}
         onChange={onInput}
+        onBlur={onBlur}
         onFocus={() => {
           setOpen(true);
           setFiltered(airports.slice(0, 20));

@@ -37,11 +37,24 @@ function buildGraph() {
       if (a === b) continue;
       addEdge(a, b, distanceKm(stops[i], stops[i + 1]), line.id);
     }
-    // 环线：末站连回首站（权重按 1 计，与缺省里程一致）
+    // 环线：末站连回首站（若各站已配置里程，取平均站间里程，避免硬编码 1 导致最短路失真）
     if (line.isLoop && stops.length >= 3) {
       const a = stops[stops.length - 1].stationId;
       const b = stops[0].stationId;
-      if (a !== b) addEdge(a, b, 1, line.id);
+      if (a !== b) {
+        let dist = 1;
+        let kmSum = 0;
+        let kmCount = 0;
+        for (let i = 0; i < stops.length - 1; i++) {
+          const dKm = distanceKm(stops[i], stops[i + 1]);
+          kmSum += dKm;
+          kmCount++;
+        }
+        if (kmCount > 0) {
+          dist = Math.max(1, Math.round((kmSum / kmCount) * 10) / 10);
+        }
+        addEdge(a, b, dist, line.id);
+      }
     }
   }
   return { edgeMap, adj };

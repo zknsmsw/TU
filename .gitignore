@@ -1,5 +1,8 @@
 node_modules/
 client/dist/
 server/data/
+server/uploads/
 *.log
 *.zip
+.DS_Store
+Thumbs.db
